@@ -1,0 +1,14 @@
+[
+  {
+    "id": "rust_1",
+    "name": "Servidor Rust #1",
+    "discordRoleVip": "ROLE_ID_VIP",
+    "discordRoleVipPlus": "ROLE_ID_VIP_PLUS"
+  },
+  {
+    "id": "rust_2",
+    "name": "Servidor Rust #2",
+    "discordRoleVip": "ROLE_ID_VIP",
+    "discordRoleVipPlus": "ROLE_ID_VIP_PLUS"
+  }
+]
