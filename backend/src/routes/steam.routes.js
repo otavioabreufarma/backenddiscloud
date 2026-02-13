@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const passport = require("passport");
 const { attachSteamToOrder } = require("../services/orders.service");
+const { steamReturnUrl } = require("../config/env");
 
 const router = Router();
 
@@ -11,7 +12,11 @@ router.get("/login", (req, res, next) => {
   }
 
   req.session.order_nsu = order_nsu;
-  return passport.authenticate("steam")(req, res, next);
+
+  const returnURL = new URL(steamReturnUrl);
+  returnURL.searchParams.set("order_nsu", order_nsu);
+
+  return passport.authenticate("steam", { returnURL: returnURL.toString() })(req, res, next);
 });
 
 router.get(
@@ -20,7 +25,7 @@ router.get(
   async (req, res, next) => {
     try {
       const steamId64 = req.user.steamId64;
-      const order_nsu = req.session.order_nsu;
+      const order_nsu = req.query.order_nsu || req.session.order_nsu;
 
       await attachSteamToOrder({ order_nsu, steamId64 });
 
