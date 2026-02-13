@@ -10,11 +10,9 @@ function required(name) {
 module.exports = {
   port: Number(process.env.PORT || 8080),
   baseUrl: required("BASE_URL"),
-  botToken: required("BOT_TOKEN"),
-  rustToken: required("RUST_TOKEN"),
-  webhookSecret: required("WEBHOOK_SECRET"),
-  steamApiKey: required("STEAM_API_KEY"),
+  steamApiKey: process.env.STEAM_API_KEY || "",
   steamRealm: required("STEAM_REALM"),
   steamReturnUrl: required("STEAM_RETURN_URL"),
-  rustPluginUrl: required("RUST_PLUGIN_URL")
+  botToken: process.env.BOT_TOKEN || "",
+  webhookSecret: process.env.WEBHOOK_SECRET || ""
 };

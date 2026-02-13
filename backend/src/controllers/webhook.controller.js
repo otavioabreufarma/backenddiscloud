@@ -1,21 +1,43 @@
 const { confirmPayment } = require("../services/infinitepay.service");
 const { activateVip } = require("../services/vip.service");
-const { webhookSecret } = require("../config/env");
 
-async function infinitePayWebhookController(req, res, next) {
+function isWebhookAuthorized(req) {
+  const secret = process.env.WEBHOOK_SECRET;
+  if (!secret) return true;
+  return req.headers["x-webhook-secret"] === secret;
+}
+
+async function infinitePayWebhookController(req, res) {
   try {
-    if (req.headers["x-webhook-secret"] !== webhookSecret)
-      return res.status(401).end();
+    if (!isWebhookAuthorized(req)) {
+      return res.status(401).json({ error: "Unauthorized webhook" });
+    }
 
-    const { order_nsu, status, amount } = req.body;
-    if (status !== "PAID") return res.json({ ignored: true });
+    const {
+      order_nsu,
+      paid_amount,
+      transaction_nsu,
+      invoice_slug,
+      capture_method
+    } = req.body || {};
 
-    await confirmPayment({ order_nsu, amount });
+    if (!order_nsu) {
+      return res.status(400).json({ error: "order_nsu é obrigatório" });
+    }
+
+    await confirmPayment({
+      order_nsu,
+      paid_amount,
+      transaction_nsu,
+      slug: invoice_slug,
+      capture_method
+    });
+
     await activateVip(order_nsu);
 
-    res.json({ success: true });
+    return res.status(200).json({ success: true });
   } catch (e) {
-    next(e);
+    return res.status(400).json({ error: e.message });
   }
 }
 
