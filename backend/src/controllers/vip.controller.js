@@ -1,6 +1,9 @@
 const { getVipBySteamId } = require("../services/vip.service");
+const { requireBotToken } = require("../utils/requestAuth");
 
-async function getVipStatusController(req, res, next) {
+async function getVipStatusController(req, res) {
+  if (!requireBotToken(req, res)) return;
+
   try {
     const { steamId64 } = req.params;
 
@@ -11,9 +14,7 @@ async function getVipStatusController(req, res, next) {
     const vip = await getVipBySteamId(steamId64);
 
     if (!vip) {
-      return res.json({
-        active: false
-      });
+      return res.json({ active: false });
     }
 
     return res.json({
@@ -23,10 +24,8 @@ async function getVipStatusController(req, res, next) {
       expiresAt: vip.expiresAt
     });
   } catch (err) {
-    next(err);
+    return res.status(500).json({ error: err.message });
   }
 }
 
-module.exports = {
-  getVipStatusController
-};
+module.exports = { getVipStatusController };
